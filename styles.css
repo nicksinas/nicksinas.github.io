@@ -49,3 +49,8 @@ h1 {
     font-size: 14px;
     color: #333;
 }
+
+.contact img {
+    width: 32px;
+    height: 32px;
+}
