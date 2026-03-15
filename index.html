@@ -527,21 +527,31 @@ function showPanel(sectionId) {
   document.querySelector('.dv-body').scrollTop = 0;
 }
 
-function enterDecode(sectionId) {
+function enterDecode(sectionId, pushHistory) {
   mode = 'decode';
   savedScroll = scrollY;
   document.body.style.overflow = 'hidden';
   dvEl.classList.add('active');
+  if (pushHistory !== false) history.pushState({ decode: sectionId }, '', '#' + sectionId);
   showPanel(sectionId);
 }
 
-function exitDecode() {
+function exitDecode(pushHistory) {
   mode = 'analyzer';
   document.body.style.overflow = '';
   dvEl.classList.remove('active');
-  history.replaceState(null, '', location.pathname);
+  if (pushHistory !== false) history.pushState(null, '', location.pathname);
   scrollTo(0, savedScroll);
 }
+
+addEventListener('popstate', () => {
+  const hash = location.hash.replace('#', '');
+  if (['about', 'work', 'blog', 'contact'].includes(hash)) {
+    enterDecode(hash, false);
+  } else if (mode === 'decode') {
+    exitDecode(false);
+  }
+});
 
 dvTabs.forEach(t => t.addEventListener('click', () => showPanel(t.dataset.s)));
 document.getElementById('dvBack').addEventListener('click', exitDecode);
@@ -896,15 +906,13 @@ function frame() {
 frame();
 
 
-// ---- HANDLE URL HASH (deep links) ----
-function checkHash() {
+// ---- HANDLE URL HASH (deep links on initial load) ----
+(function() {
   const hash = location.hash.replace('#', '');
   if (['about', 'work', 'blog', 'contact'].includes(hash)) {
-    enterDecode(hash);
+    enterDecode(hash, false);
   }
-}
-checkHash();
-addEventListener('hashchange', checkHash);
+})();
 </script>
 </body>
 </html>
